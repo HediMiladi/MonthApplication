@@ -1,0 +1,105 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Bienvenue</h1>
+</div>
+<div>
+    <form>
+
+        <div class="form-group row">
+            <label for="langue" class="col-sm-4 col-form-label">Le nombre d'éléments dans la liste est égal à </label>
+            <div class="col-sm-8">
+                @Model.MonthsCount
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="langue" class="col-sm-4 col-form-label">Choisir la Langue à afficher</label>
+            <div class="col-sm-8">
+                <div class="btn-group">
+                    <select name="langue" id="langue">
+                        <option value="1">Anglais</option>
+                        <option value="0">Français</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row mt-3">
+            <label for="staticMonths" class="col-sm-4 col-form-label">Liste des Mois</label>
+            <div class="col-sm-8">
+                <select class="monthDropDown" style="width: 50%">
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="langue" class="col-sm-4 col-form-label">Taper le numéro du mois à chercher</label>
+            <div class="col-sm-4">
+                <input type="text" id="monthIndex" />
+            </div>
+            <div class="col-sm-4">
+               Resulat : <label id="monthSearchedText" class="h5"></label>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="langue" class="col-sm-4 col-form-label">Taper le nom du mois à chercher (Anglais ou Français)</label>
+            <div class="col-sm-4">
+                <input type="text" id="monthName" />
+            </div>
+            <div class="col-sm-4">
+               Resulat : <label id="monthSearchedIndex" class="h5"></label>
+            </div>
+        </div>        
+    </form>
+
+
+</div>
+<script>
+    jQuery(document).ready(function() {
+        var languageValue = $("#langue").val();
+        InitMonths(languageValue);
+    });
+
+    jQuery('#langue').on('change', function() {
+        InitMonths(this.value);
+    });
+
+    jQuery('#monthIndex').on('change', function() {
+       var languageValue = $("#langue").val(); 
+        jQuery.ajax(`?handler=SearchMonthByIndex&value=${this.value}&languageValue=${languageValue}`)
+            .done(function(value) {
+                jQuery("#monthSearchedText").text(value);
+            })
+            .fail(function() {
+                alert("error");
+            });           
+    });
+
+     jQuery('#monthName').on('change', function() {
+        jQuery.ajax(`?handler=SearchMonthByName&value=${this.value}`)
+            .done(function(value) {
+                jQuery("#monthSearchedIndex").text(value);
+            })
+            .fail(function() {
+                alert("error");
+            });           
+    });
+
+
+    function InitMonths(languageValue) {
+        $(".monthDropDown").empty();
+        jQuery('.monthDropDown').select2({
+            ajax: {
+                url: `?handler=Months&value=${languageValue}`,
+                dataType: 'json'
+                // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+            }
+        });
+    }
+</script>
